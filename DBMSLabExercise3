@@ -1,0 +1,259 @@
+//TABLE DESCRIPTION
+
+mysql> desc Salesman;
++------------+-------------+------+-----+---------+-------+
+| Field      | Type        | Null | Key | Default | Extra |
++------------+-------------+------+-----+---------+-------+
+| salesmanid | int(11)     | NO   | PRI | NULL    |       |
+| name       | varchar(20) | YES  |     | NULL    |       |
+| city       | varchar(15) | YES  |     | NULL    |       |
+| commision  | double(3,2) | YES  |     | NULL    |       |
++------------+-------------+------+-----+---------+-------+
+4 rows in set (0.00 sec)
+
+mysql> desc Customer;
++------------+-------------+------+-----+---------+-------+
+| Field      | Type        | Null | Key | Default | Extra |
++------------+-------------+------+-----+---------+-------+
+| customerid | int(11)     | NO   | PRI | NULL    |       |
+| custname   | varchar(20) | YES  |     | NULL    |       |
+| city       | varchar(15) | YES  |     | NULL    |       |
+| grade      | int(11)     | YES  |     | NULL    |       |
+| salesmanid | int(11)     | YES  | MUL | NULL    |       |
++------------+-------------+------+-----+---------+-------+
+5 rows in set (0.01 sec)
+
+mysql> desc Ord;
++------------+-------------+------+-----+---------+-------+
+| Field      | Type        | Null | Key | Default | Extra |
++------------+-------------+------+-----+---------+-------+
+| ordno      | int(11)     | NO   | PRI | NULL    |       |
+| purchamt   | double(6,2) | YES  |     | NULL    |       |
+| orddate    | date        | YES  |     | NULL    |       |
+| customerid | int(11)     | YES  | MUL | NULL    |       |
+| salesmanid | int(11)     | YES  | MUL | NULL    |       |
++------------+-------------+------+-----+---------+-------+
+5 rows in set (0.00 sec)
+
+///////TABLE DATA
+
+mysql> select * from Salesman;
++------------+------------+----------+-----------+
+| salesmanid | name       | city     | commision |
++------------+------------+----------+-----------+
+|       5001 | James Hoog | New York |      0.15 |
+|       5002 | Nail Knite | Paris    |      0.13 |
+|       5003 | Lauson Hen | NULL     |      0.12 |
+|       5005 | Pit Alex   | London   |      0.11 |
+|       5006 | Mc Lyon    | Paris    |      0.14 |
+|       5007 | Paul Adam  | Rome     |      0.13 |
++------------+------------+----------+-----------+
+6 rows in set (0.00 sec)
+
+mysql> select * from Customer;
++------------+--------------+------------+-------+------------+
+| customerid | custname     | city       | grade | salesmanid |
++------------+--------------+------------+-------+------------+
+|       3001 | Brad Guzan   | London     |  NULL |       5005 |
+|       3002 | Nick Rimando | New York   |   100 |       5001 |
+|       3003 | Jozy Altidor | Moscow     |   200 |       5007 |
+|       3004 | Fabian Johns | Paris      |   300 |       5006 |
+|       3005 | Graham Zusi  | California |   200 |       5002 |
+|       3007 | Brad Davis   | New York   |   200 |       5001 |
+|       3008 | Julian Green | London     |   300 |       5002 |
+|       3009 | Goeff Camero | Berlin     |   100 |       5003 |
++------------+--------------+------------+-------+------------+
+8 rows in set (0.01 sec)
+
+mysql> select * from Ord;
++-------+----------+------------+------------+------------+
+| ordno | purchamt | orddate    | customerid | salesmanid |
++-------+----------+------------+------------+------------+
+| 70001 |   150.50 | 2012-10-05 |       3001 |       5002 |
+| 70002 |    65.26 | 2012-10-05 |       3002 |       5001 |
+| 70003 |  2480.40 | 2012-10-10 |       3009 |       5003 |
+| 70004 |   110.50 | 2012-08-17 |       3009 |       5003 |
+| 70005 |  2400.60 | 2012-07-27 |       3007 |       5001 |
+| 70007 |   948.50 | 2012-09-10 |       3005 |       5002 |
+| 70008 |  5760.00 | 2012-09-10 |       3002 |       5001 |
+| 70009 |   270.65 | 2012-09-10 |       3001 |       5005 |
+| 70010 |  1983.43 | 2012-10-10 |       3004 |       5006 |
+| 70011 |    75.29 | 2012-08-17 |       3003 |       5007 |
+| 70012 |   250.45 | 2012-06-27 |       3008 |       5002 |
+| 70013 |  3045.60 | 2012-04-25 |       3002 |       5001 |
++-------+----------+------------+------------+------------+
+12 rows in set (0.00 sec)
+
+
+/////QUESTIONS
+
+1.
+mysql> create view ques1 as select name, avg(o.purchamt) as avg_ord, sum(o.purchamt) as total_ord from Salesman s, Ord o where o.salesmanid=s.salesmanid group by o.salesmanid;
+Query OK, 0 rows affected (0.31 sec)
+
+mysql> select * from ques1;
++------------+-------------+-----------+
+| name       | avg_ord     | total_ord |
++------------+-------------+-----------+
+| James Hoog | 2817.865000 |  11271.46 |
+| Nail Knite |  449.816667 |   1349.45 |
+| Lauson Hen | 1295.450000 |   2590.90 |
+| Pit Alex   |  270.650000 |    270.65 |
+| Mc Lyon    | 1983.430000 |   1983.43 |
+| Paul Adam  |   75.290000 |     75.29 |
++------------+-------------+-----------+
+6 rows in set (0.00 sec)
+
+2.
+mysql> create view ques2 as select name from Salesman where city = 'New York' and commision >13/100;
+Query OK, 0 rows affected (0.31 sec)
+
+mysql>  select * from ques2;
++------------+
+| name       |
++------------+
+| James Hoog |
++------------+
+1 row in set (0.00 sec)
+
+3.
+mysql> create view ques3 as select orddate, count(distinct customerid), count(distinct salesmanid), avg(purchamt), sum(purchamt) from Ord group by orddate;
+Query OK, 0 rows affected (0.31 sec)
+
+mysql> select * from ques3;
++------------+----------------------------+----------------------------+---------------+---------------+
+| orddate    | count(distinct customerid) | count(distinct salesmanid) | avg(purchamt) | sum(purchamt) |
++------------+----------------------------+----------------------------+---------------+---------------+
+| 2012-04-25 |                          1 |                          1 |   3045.600000 |       3045.60 |
+| 2012-06-27 |                          1 |                          1 |    250.450000 |        250.45 |
+| 2012-07-27 |                          1 |                          1 |   2400.600000 |       2400.60 |
+| 2012-08-17 |                          2 |                          2 |     92.895000 |        185.79 |
+| 2012-09-10 |                          3 |                          3 |   2326.383333 |       6979.15 |
+| 2012-10-05 |                          2 |                          2 |    107.880000 |        215.76 |
+| 2012-10-10 |                          2 |                          2 |   2231.915000 |       4463.83 |
++------------+----------------------------+----------------------------+---------------+---------------+
+7 rows in set (0.00 sec)
+
+4.
+mysql> create view ques4 as select c.custname, s.name from Ord o, Customer c, Salesman s where o.customerid=c.customerid and s.salesmanid=o.salesmanid group by ordno;
+Query OK, 0 rows affected (0.31 sec)
+
+mysql> select * from ques4;        
++--------------+------------+
+| custname     | name       |
++--------------+------------+
+| Brad Guzan   | Nail Knite |
+| Nick Rimando | James Hoog |
+| Goeff Camero | Lauson Hen |
+| Goeff Camero | Lauson Hen |
+| Brad Davis   | James Hoog |
+| Graham Zusi  | Nail Knite |
+| Nick Rimando | James Hoog |
+| Brad Guzan   | Pit Alex   |
+| Fabian Johns | Mc Lyon    |
+| Jozy Altidor | Paul Adam  |
+| Julian Green | Nail Knite |
+| Nick Rimando | James Hoog |
++--------------+------------+
+12 rows in set (0.00 sec)
+
+5.
+mysql> create view ques5 as select orddate, name, s.salesmanid, o.purchamt from Salesman s, Ord o where s.salesmanid=o.salesmanid and purchamt = (select max(o2.purchamt) from Ord o2 where o2.orddate=o.orddate);
+Query OK, 0 rows affected (0.05 sec)
+
+mysql> select * from ques5;
++------------+------------+------------+----------+
+| orddate    | name       | salesmanid | purchamt |
++------------+------------+------------+----------+
+| 2012-07-27 | James Hoog |       5001 |  2400.60 |
+| 2012-09-10 | James Hoog |       5001 |  5760.00 |
+| 2012-04-25 | James Hoog |       5001 |  3045.60 |
+| 2012-10-05 | Nail Knite |       5002 |   150.50 |
+| 2012-06-27 | Nail Knite |       5002 |   250.45 |
+| 2012-10-10 | Lauson Hen |       5003 |  2480.40 |
+| 2012-08-17 | Lauson Hen |       5003 |   110.50 |
++------------+------------+------------+----------+
+7 rows in set (0.01 sec)
+
+6.
+mysql> create view ques6 as select distinct a.salesmanid, name from ques5 a where (select count(*) from ques5 b where b.salesmanid=a.salesmanid)>=3;
+Query OK, 0 rows affected (0.32 sec)
+
+mysql> select * from ques6;
++------------+------------+
+| salesmanid | name       |
++------------+------------+
+|       5001 | James Hoog |
++------------+------------+
+1 row in set (0.00 sec)
+
+7.
+mysql> create view ques7 as select customerid from Customer where grade = (select max(grade) from Customer);
+Query OK, 0 rows affected (0.32 sec)
+
+mysql> select * from ques7;
++------------+
+| customerid |
++------------+
+|       3004 |
+|       3008 |
++------------+
+2 rows in set (0.00 sec)
+
+8.
+mysql> create view ques8 as select city, count(salesmanid) from Salesman group by city;
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> select * from ques8;
++----------+-------------------+
+| city     | count(salesmanid) |
++----------+-------------------+
+| NULL     |                 1 |
+| London   |                 1 |
+| New York |                 1 |
+| Paris    |                 2 |
+| Rome     |                 1 |
++----------+-------------------+
+5 rows in set (0.00 sec)
+
+9.
+mysql> create view ques9 as select customerid from Customer c, Salesman s where c.salesmanid=s.salesmanid and c.city=s.city;
+Query OK, 0 rows affected (0.06 sec)
+
+mysql> select * from ques9;
++------------+
+| customerid |
++------------+
+|       3002 |
+|       3007 |
+|       3001 |
+|       3004 |
++------------+
+4 rows in set (0.00 sec)
+
+10.
+mysql> create view ques10 as select s.salesmanid from Salesman s, Ord o where s.salesmanid=o.salesmanid and orddate='2012-10-10';
+Query OK, 0 rows affected (0.32 sec)
+
+mysql> select * from ques10;
++------------+
+| salesmanid |
++------------+
+|       5003 |
+|       5006 |
++------------+
+2 rows in set (0.00 sec)
+
+11.
+mysql> create view ques11 as select a.salesmanid from ques10 a where a.salesmanid not in (select b.salesmanid from Salesman b, Ord o where b.salesmanid=o.salesmanid and orddate in('2012-08-17')) union select s.salesmanid from Salesman s, Ord o where s.salesmanid=o.salesmanid and orddate in('2012-08-17') and s.salesmanid not in (select a.salesmanid from ques10 a);
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> select * from ques11;
++------------+
+| salesmanid |
++------------+
+|       5006 |
+|       5007 |
++------------+
+2 rows in set (0.00 sec)
+

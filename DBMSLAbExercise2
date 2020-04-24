@@ -1,0 +1,359 @@
+
+//////////TABLE DEFINITION:
+
+mysql> desc Flights;
++-------------+-------------+------+-----+---------+-------+
+| Field       | Type        | Null | Key | Default | Extra |
++-------------+-------------+------+-----+---------+-------+
+| flno        | int(11)     | NO   | PRI | NULL    |       |
+| frm         | varchar(20) | YES  |     | NULL    |       |
+| destination | varchar(20) | YES  |     | NULL    |       |
+| distance    | int(11)     | YES  |     | NULL    |       |
+| Departs     | time        | YES  |     | NULL    |       |
+| arrives     | time        | YES  |     | NULL    |       |
+| price       | int(11)     | YES  |     | NULL    |       |
++-------------+-------------+------+-----+---------+-------+
+7 rows in set (0.00 sec)
+
+mysql> desc Aircraft;
++---------------+-------------+------+-----+---------+-------+
+| Field         | Type        | Null | Key | Default | Extra |
++---------------+-------------+------+-----+---------+-------+
+| aid           | int(11)     | NO   | PRI | NULL    |       |
+| aname         | varchar(20) | YES  |     | NULL    |       |
+| cruisingrange | int(11)     | YES  |     | NULL    |       |
++---------------+-------------+------+-----+---------+-------+
+3 rows in set (0.01 sec)
+
+mysql> desc Employees;
++--------+-------------+------+-----+---------+-------+
+| Field  | Type        | Null | Key | Default | Extra |
++--------+-------------+------+-----+---------+-------+
+| eid    | int(11)     | NO   | PRI | NULL    |       |
+| ename  | varchar(20) | YES  |     | NULL    |       |
+| salary | int(11)     | YES  |     | NULL    |       |
++--------+-------------+------+-----+---------+-------+
+3 rows in set (0.00 sec)
+
+mysql> desc Certified;
++-------+---------+------+-----+---------+-------+
+| Field | Type    | Null | Key | Default | Extra |
++-------+---------+------+-----+---------+-------+
+| eid   | int(11) | YES  | MUL | NULL    |       |
+| aid   | int(11) | YES  | MUL | NULL    |       |
++-------+---------+------+-----+---------+-------+
+2 rows in set (0.00 sec)
+
+////////////TABLE DATA:
+
+mysql> select * from Flights;
++------+-------------+-------------+----------+----------+----------+-------+
+| flno | frm         | destination | distance | Departs  | arrives  | price |
++------+-------------+-------------+----------+----------+----------+-------+
+|  101 | Los Angeles | Honolulu    |     5000 | 18:10:00 | 23:20:00 | 94000 |
+|  102 | Kolkata     | Madras      |     1200 | 08:15:00 | 10:45:00 |  4600 |
+|  103 | Los Angeles | Honolulu    |     5000 | 14:15:00 | 20:45:00 | 75000 |
+|  104 | Chicago     | Honolulu    |     7000 | 04:25:00 | 10:12:00 | 72000 |
+|  105 | Madison     | New York    |     3000 | 15:15:00 | 17:15:00 | 12000 |
+|  106 | Honolulu    | Frankfurt   |     4000 | 12:10:00 | 16:35:00 | 30000 |
+|  107 | Madison     | Madras      |     9000 | 15:30:00 | 22:15:00 | 60000 |
+|  108 | Los Angeles | Chicago     |     4000 | 11:10:00 | 13:25:00 | 15000 |
+|  109 | Honolulu    | New York    |     3000 | 14:00:00 | 20:00:00 | 56000 |
+|  110 | Madras      | Chicago     |     2323 | 23:12:00 | 08:12:00 | 49700 |
+|  111 | Madras      | New York    |     1023 | 07:12:00 | 16:45:00 | 49700 |
++------+-------------+-------------+----------+----------+----------+-------+
+11 rows in set (0.00 sec)
+
+mysql> select * from Aircraft;
++-----+-------------+---------------+
+| aid | aname       | cruisingrange |
++-----+-------------+---------------+
+|   4 | Indigo77    |          4000 |
+|   8 | Boeing17    |          5000 |
+|  15 | Boeing19    |           500 |
+|  17 | EmiratesAir |          3000 |
+|  18 | Jet24       |          2000 |
+|  25 | IndonesAir  |          4200 |
++-----+-------------+---------------+
+6 rows in set (0.00 sec)
+
+mysql> select * from Employees;
++-----+----------+--------+
+| eid | ename    | salary |
++-----+----------+--------+
+|   1 | Barry    |  60000 |
+|   2 | Salazar  | 150000 |
+|   4 | Smeagol  |  70000 |
+|   8 | Shreyas  | 240000 |
+|   9 | NoOne    |  10000 |
+|  10 | Saruman  | 190000 |
+|  12 | Halliday |  70000 |
+|  24 | Turner   |  60000 |
++-----+----------+--------+
+8 rows in set (0.00 sec)
+
+mysql> select * from Certified;
++------+------+
+| eid  | aid  |
++------+------+
+|    1 |    4 |
+|    1 |    8 |
+|    1 |   18 |
+|    1 |   25 |
+|    2 |    4 |
+|    2 |   15 |
+|   24 |   17 |
+|    9 |   15 |
+|   10 |   25 |
++------+------+
+9 rows in set (0.00 sec)
+
+
+////////////QUESTIONS:
+
+1. 
+select distinct aname from Aircraft a, Certified c, Employees e where a.aid=c.aid and e.eid = c.eid and 80000<all(select e2.salary from Employees e2, Certified c2, Aircraft a2 where e2.eid=c2.eid and a2.aid=c2.aid);
+Empty set (0.00 sec)
+
+2. 
+mysql> select e.eid, max(cruisingrange) from Aircraft a, Certified c, Employees e  where c.eid=e.eid and a.aid= c.aid group by c.eid having count(c.aid)>3;	
++-----+--------------------+
+| eid | max(cruisingrange) |
++-----+--------------------+
+|   1 |               5000 |
++-----+--------------------+
+1 row in set (0.01 sec)
+
+3. 
+mysql> select distinct ename from Employees where salary<(select min(price) from Flights where frm='Los Angeles' and destination ='Honolulu');
++----------+
+| ename    |
++----------+
+| Barry    |
+| Smeagol  |
+| NoOne    |
+| Halliday |
+| Turner   |
++----------+
+5 rows in set (0.00 sec)
+
+4.
+mysql> select aname, avg(salary) from Employees e, Certified c, Aircraft a where a.aid=c.aid and e.eid = c.eid and cruisingrange >1000 group by a.aid;
++-------------+-------------+
+| aname       | avg(salary) |
++-------------+-------------+
+| Boeing17    |  60000.0000 |
+| EmiratesAir |  60000.0000 |
+| Indigo77    | 105000.0000 |
+| IndonesAir  | 125000.0000 |
+| Jet24       |  60000.0000 |
++-------------+-------------+
+5 rows in set (0.29 sec)
+
+5.
+mysql> select distinct ename from Employees e, Certified c, Aircraft a where a.aid=c.aid and c.eid=e.eid and aname like "Boeing%";
++---------+
+| ename   |
++---------+
+| Barry   |
+| Salazar |
+| NoOne   |
++---------+
+3 rows in set (0.01 sec)
+
+6.
+mysql> select a.aid from Aircraft a where cruisingrange>=(select min(distance) from Flights where frm='Los Angeles' and destination='Chicago');
++-----+
+| aid |
++-----+
+|   4 |
+|   8 |
+|  25 |
++-----+
+3 rows in set (0.00 sec)
+
+7.
+mysql> select distinct frm, destination from Flights where distance <=(select min(m.cr) from (select max(cruisingrange) as cr from Employees e, Aircraft a, Certified c where a.aid=c.aid and e.eid=c.eid and salary>100000 group by e.eid) as m);
++-------------+-------------+
+| frm         | destination |
++-------------+-------------+
+| Kolkata     | Madras      |
+| Madison     | New York    |
+| Honolulu    | Frankfurt   |
+| Los Angeles | Chicago     |
+| Honolulu    | New York    |
+| Madras      | Chicago     |
+| Madras      | New York    |
++-------------+-------------+
+7 rows in set (0.00 sec)
+
+8.
+mysql> select distinct ename from Employees e, Aircraft a, Certified c where c.eid=e.eid and a.aid=c.aid and cruisingrange>3000 and aname not like 'Boeing%';
++---------+
+| ename   |
++---------+
+| Barry   |
+| Salazar |
+| Saruman |
++---------+
+3 rows in set (0.00 sec)
+
+9.
+mysql> select f1.Departs from Flights f1 where f1.frm='Madison' and f1.destination ='New York' and f1.arrives <='18:00:00' union select f1.Departs from Flights f1, Flights f2 where f1.frm='Madison' and f1.destination <>'New York' and f1.destination = f2.frm and f2.destination = 'New York' and f1.arrives<=f2.departs and f2.arrives <='18:00:00' union  select f1.Departs from Flights f1, Flights f2, Flights f3 where f1.frm='Madison' and f1.destination <>'New York' and f1.destination = f2.frm and f2.destination <> 'New York' and f2.destination = f3.frm and f3.destination = 'New York' and f1.arrives<=f2.departs and f2.arrives<= f3.departs and f3.arrives <='18:00:00';
++----------+
+| Departs  |
++----------+
+| 15:15:00 |
++----------+
+1 row in set (0.00 sec)
+
+10.
+mysql> select (select avg(salary) from Employees e where e.eid in (select c.eid from Certified c))- (select avg(salary) from Employees) as 'Difference';
++-------------+
+| Difference  |
++-------------+
+| -12250.0000 |
++-------------+
+1 row in set (0.00 sec)
+
+11.
+mysql> select distinct ename, salary from Employees e where e.eid not in (select c.eid from Certified c) and salary > (select avg(salary) from Employees e, Certified c where e.eid=c.eid);
++---------+--------+
+| ename   | salary |
++---------+--------+
+| Shreyas | 240000 |
++---------+--------+
+1 row in set (0.00 sec)
+
+12.
+mysql> select distinct ename from Certified c, Employees e, Aircraft a where a.aid=c.aid and e.eid=c.eid and 1000<all(select a2.cruisingrange from Aircraft a2, Certified c2 where a2.aid=c2.aid and e.eid=c2.eid);
++---------+
+| ename   |
++---------+
+| Barry   |
+| Turner  |
+| Saruman |
++---------+
+3 rows in set (0.03 sec)
+
+13.
+mysql> mysql> select distinct ename from Certified c, Employees e, Aircraft a where a.aid=c.aid and e.eid=c.eid and 1000<all(select a2.cruisingrom Aircraft a2, Certified c2 where a2.aid=c2.aid and e.eid=c2.eid) group by e.eid having count(*)>1;
++-------+
+| ename |
++-------+
+| Barry |
++-------+
+1 row in set (0.03 sec)
+
+14.
+mysql> select distinct ename from Certified c, Employees e, Aircraft a where a.aid=c.aid and e.eid=c.eid and 1000<all(select a2.cruisingrange from Aircraft a2, Certified c2 where a2.aid=c2.aid and e.eid=c2.eid) and aname like 'Boeing%';
++-------+
+| ename |
++-------+
+| Barry |
++-------+
+1 row in set (0.00 sec)
+
+15. 
+mysql> select e.eid from Employees e, Aircraft a, Certified c where e.eid=c.eid and a.aid=c.aid and aname like 'Boeing%';
++-----+
+| eid |
++-----+
+|   1 |
+|   2 |
+|   9 |
++-----+
+3 rows in set (0.00 sec)
+
+16. 
+mysql> select distinct ename from Employees e, Certified c, Aircraft a where a.aid=c.aid and c.eid=e.eid and aname like "Boeing%";
++---------+
+| ename   |
++---------+
+| Barry   |
+| Salazar |
+| NoOne   |
++---------+
+3 rows in set (0.01 sec)
+
+17.
+mysql> select aid from Aircraft , Flights  where distance<=cruisingrange and frm='Kolkata' and destination='Madras';
++-----+
+| aid |
++-----+
+|   4 |
+|   8 |
+|  17 |
+|  18 |
+|  25 |
++-----+
+5 rows in set (0.00 sec)
+
+18. 
+mysql> select distinct flno from Flights where distance <=(select min(m.cr) from (select max(cruisingrange) as cr from Employees e, Aircraft a, Certified c where a.aid=c.aid and e.eid=c.eid and salary>100000 group by e.eid) as m);
++------+
+| flno |
++------+
+|  102 |
+|  105 |
+|  106 |
+|  108 |
+|  109 |
+|  110 |
+|  111 |
++------+
+7 rows in set (0.00 sec)
+
+19.
+mysql> select distinct ename from Aircraft a, Certified c, Employees e where a.aid=c.aid and e.eid=c.eid and cruisingrange>3000 and aname not like 'Boeing%';
++---------+
+| ename   |
++---------+
+| Barry   |
+| Salazar |
+| Saruman |
++---------+
+3 rows in set (0.00 sec)
+
+20.
+mysql> select eid from Employees where salary = (select max(salary) from Employees);
++-----+
+| eid |
++-----+
+|   8 |
++-----+
+1 row in set (0.00 sec)
+
+21.
+mysql> select eid from Employees where salary = (select max(salary) from Employees where salary not in(select max(salary) from Employees));
++-----+
+| eid |
++-----+
+|  10 |
++-----+
+1 row in set (0.00 sec)
+
+22.
+mysql> select p.eid from Certified p group by p.eid having count(*)= (select max(s) from (select count(*) as s from Certified c group by c.eid)as t);
++------+
+| eid  |
++------+
+|    1 |
++------+
+1 row in set (0.00 sec)
+
+23.
+mysql> select e.eid from Employees e, Certified c where e.eid=c.eid group by c.eid having count(c.eid)=3;
+Empty set (0.00 sec)
+
+24.
+mysql> select sum(salary) from Employees as salaries;
++-------------+
+| sum(salary) |
++-------------+
+|      850000 |
++-------------+
+1 row in set (0.00 sec)
+
+25.///////THE POWER OF RECURSIONNNNNNNNNN!!!!!
+
