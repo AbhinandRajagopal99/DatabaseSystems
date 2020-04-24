@@ -1,8 +1,8 @@
 # DatabaseSystems
 Lab Exercises
 
-Exercise1: Basic SQL Queries
-Exercise2: Foreign Key SQL Queries
-Exercise3: Views SQL Queries
-Normalisation: Simulation of Normalisation of Functional Dependencies
+Exercise1: Basic SQL Queries <br />
+Exercise2: Foreign Key SQL Queries <br />
+Exercise3: Views SQL Queries <br />
+Normalisation: Simulation of Normalisation of Functional Dependencies <br />
 Decomposition: Simulation of Decomposition of Fuctional Dependencies
